@@ -1,0 +1,14 @@
+﻿{
+  "Name": "editable text Student ID",
+  "Type": "Element",
+  "TaxonomyType": "Input",
+  "Id": "PWFhWxdbr0iB-iXdwufNBg",
+  "Reference": "IBh2xZmw4UqhwDRSfSW4kA/PWFhWxdbr0iB-iXdwufNBg",
+  "ParentRef": "IBh2xZmw4UqhwDRSfSW4kA/hhBtcyOxZ0OeTeu-_4_Ibw",
+  "Created": "2026-10-29T10:55:43.4220712Z",
+  "Updated": "2026-10-29T10:55:43.4220712Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.5.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.9.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

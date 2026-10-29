@@ -1,0 +1,14 @@
+﻿{
+  "Name": "Register Student",
+  "Type": "Element",
+  "TaxonomyType": "Button",
+  "Id": "a1UALdhn4kat5WxoQ1LpWg",
+  "Reference": "IBh2xZmw4UqhwDRSfSW4kA/a1UALdhn4kat5WxoQ1LpWg",
+  "ParentRef": "IBh2xZmw4UqhwDRSfSW4kA/hhBtcyOxZ0OeTeu-_4_Ibw",
+  "Created": "2026-10-29T11:09:14.4292071Z",
+  "Updated": "2026-10-29T11:09:14.4292071Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.5.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.9.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

@@ -1,0 +1,14 @@
+﻿{
+  "Name": "editable text Email Add…",
+  "Type": "Element",
+  "TaxonomyType": "Input",
+  "Id": "9kbrdKPIE06KULpMFFDlYw",
+  "Reference": "IBh2xZmw4UqhwDRSfSW4kA/9kbrdKPIE06KULpMFFDlYw",
+  "ParentRef": "IBh2xZmw4UqhwDRSfSW4kA/hhBtcyOxZ0OeTeu-_4_Ibw",
+  "Created": "2026-10-29T11:05:55.2763295Z",
+  "Updated": "2026-10-29T11:05:55.2763295Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.5.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.9.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

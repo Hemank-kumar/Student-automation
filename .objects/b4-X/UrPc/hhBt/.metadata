@@ -1,0 +1,13 @@
+﻿{
+  "Name": "Chrome Student Registration",
+  "Type": "Screen",
+  "Id": "hhBtcyOxZ0OeTeu-_4_Ibw",
+  "Reference": "IBh2xZmw4UqhwDRSfSW4kA/hhBtcyOxZ0OeTeu-_4_Ibw",
+  "ParentRef": "IBh2xZmw4UqhwDRSfSW4kA/UrPcfuA-wECVJP_iCoUp3g",
+  "Created": "2026-10-29T10:46:02.1455933Z",
+  "Updated": "2026-10-29T10:46:02.1455933Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.5.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.9.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}
