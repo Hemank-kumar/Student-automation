@@ -2,7 +2,7 @@
   "name": "Student Autmation",
   "projectId": "163ed30d-e9ac-49c5-9f7c-16613c293506",
   "description": "Blank Process",
-  "main": "Main.xaml",
+  "main": "Main orgi.xaml",
   "dependencies": {
     "UiPath.Excel.Activities": "[3.5.1]",
     "UiPath.System.Activities": "[26.10.0]",
@@ -46,8 +46,8 @@
   "expressionLanguage": "VisualBasic",
   "entryPoints": [
     {
-      "filePath": "Main.xaml",
-      "uniqueId": "718e19d8-dddc-44ac-b614-8d185634371c",
+      "filePath": "Main orgi.xaml",
+      "uniqueId": "6f489999-73b0-45b5-8eb7-17327194c24d",
       "input": [],
       "output": []
     }

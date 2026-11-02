@@ -121,12 +121,25 @@
       <Variable x:TypeArguments="x:String" Name="studentEmail" />
       <Variable x:TypeArguments="x:Int32" Name="studentMarks" />
       <Variable x:TypeArguments="x:String" Name="studentId" />
+      <Variable x:TypeArguments="x:String" Name="marksText" />
+      <Variable x:TypeArguments="x:Boolean" Name="isValidRecord" />
+      <Variable x:TypeArguments="x:String" Name="validationMessage" />
+      <Variable x:TypeArguments="scg:HashSet(x:String)" Name="processedStudentIds" />
+      <Variable x:TypeArguments="x:Boolean" Name="isDuplicate" />
     </Sequence.Variables>
     <sap:WorkflowViewStateService.ViewState>
       <scg:Dictionary x:TypeArguments="x:String, x:Object">
         <x:Boolean x:Key="IsExpanded">True</x:Boolean>
       </scg:Dictionary>
     </sap:WorkflowViewStateService.ViewState>
+    <Assign DisplayName="Initialize duplicate tracker" sap:VirtualizedContainerService.HintSize="616,174.4" sap2010:WorkflowViewState.IdRef="Assign_InitDuplicateTracker">
+      <Assign.To>
+        <OutArgument x:TypeArguments="scg:HashSet(x:String)">[processedStudentIds]</OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="scg:HashSet(x:String)">[New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)]</InArgument>
+      </Assign.Value>
+    </Assign>
     <Sequence sap:VirtualizedContainerService.HintSize="649.6,5664" sap2010:WorkflowViewState.IdRef="Sequence_3">
       <sap:WorkflowViewStateService.ViewState>
         <scg:Dictionary x:TypeArguments="x:String, x:Object">
@@ -145,7 +158,7 @@
                   <x:Boolean x:Key="IsExpanded">True</x:Boolean>
                 </scg:Dictionary>
               </sap:WorkflowViewStateService.ViewState>
-              <ueab:ReadRangeX DisplayName="Read Range" sap:VirtualizedContainerService.HintSize="556.8,168.8" sap2010:WorkflowViewState.IdRef="ReadRangeX_1" Range="[Excel.Sheet(&quot;Sheet1&quot;).Range(&quot;A1:E5&quot;)]" SaveTo="[dtStudents]" />
+              <ueab:ReadRangeX DisplayName="Read Range" sap:VirtualizedContainerService.HintSize="556.8,168.8" sap2010:WorkflowViewState.IdRef="ReadRangeX_1" Range="[Excel.Sheet(&quot;Sheet1&quot;).Range(&quot;A1&quot;)]" SaveTo="[dtStudents]" />
               <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[dtStudents]" DisplayName="For Each Row in Data Table" sap:VirtualizedContainerService.HintSize="556.8,4906.4" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
                 <ui:ForEachRow.Body>
                   <ActivityAction x:TypeArguments="sd:DataRow">
@@ -174,12 +187,20 @@
                           <InArgument x:TypeArguments="x:String">[CurrentRow("StudentID").ToString]</InArgument>
                         </Assign.Value>
                       </Assign>
+                      <Assign sap:VirtualizedContainerService.HintSize="521.6,174.4" sap2010:WorkflowViewState.IdRef="Assign_MarksText">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:String">[marksText]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:String">[CurrentRow("Marks").ToString.Trim]</InArgument>
+                        </Assign.Value>
+                      </Assign>
                       <Assign sap:VirtualizedContainerService.HintSize="521.6,174.4" sap2010:WorkflowViewState.IdRef="Assign_3">
                         <Assign.To>
                           <OutArgument x:TypeArguments="x:Int32">[studentMarks]</OutArgument>
                         </Assign.To>
                         <Assign.Value>
-                          <InArgument x:TypeArguments="x:Int32">[Convert.ToInt32(CurrentRow("Marks"))]</InArgument>
+                          <InArgument x:TypeArguments="x:Int32">[If(Integer.TryParse(marksText, studentMarks), studentMarks, -1)]</InArgument>
                         </Assign.Value>
                       </Assign>
                       <Assign sap:VirtualizedContainerService.HintSize="521.6,174.4" sap2010:WorkflowViewState.IdRef="Assign_5">
@@ -206,8 +227,32 @@
                           <InArgument x:TypeArguments="x:String">[CurrentRow("Name").ToString]</InArgument>
                         </Assign.Value>
                       </Assign>
+                      <Assign sap:VirtualizedContainerService.HintSize="521.6,174.4" sap2010:WorkflowViewState.IdRef="Assign_ValidationMessage">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:String">[validationMessage]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:String">[If(String.IsNullOrWhiteSpace(studentId), "Student ID is required", If(String.IsNullOrWhiteSpace(studentName), "Student name is required", If(String.IsNullOrWhiteSpace(studentCourse), "Course is required", If(String.IsNullOrWhiteSpace(studentEmail) OrElse Not System.Text.RegularExpressions.Regex.IsMatch(studentEmail, "^[^@\s]+@[^@\s]+\.[^@\s]+$"), "Email address is invalid", If(studentMarks &lt; 0 OrElse studentMarks &gt; 100, "Marks must be an integer between 0 and 100", "")))))]</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                      <Assign sap:VirtualizedContainerService.HintSize="521.6,174.4" sap2010:WorkflowViewState.IdRef="Assign_IsValidRecord">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:Boolean">[isValidRecord]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:Boolean">[String.IsNullOrEmpty(validationMessage)]</InArgument>
+                        </Assign.Value>
+                      </Assign>
+                      <Assign DisplayName="Check duplicate Student ID" sap:VirtualizedContainerService.HintSize="521.6,174.4" sap2010:WorkflowViewState.IdRef="Assign_CheckDuplicate">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:Boolean">[isDuplicate]</OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:Boolean">[If(isValidRecord, Not processedStudentIds.Add(studentId.Trim), False)]</InArgument>
+                        </Assign.Value>
+                      </Assign>
                       <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="521.6,174.4" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[studentRollNo + &quot; | &quot; + studentName + &quot; | &quot; + studentMarks.ToString + &quot; | &quot; + studentCourse]" />
-                      <If Condition="[studentMarks &gt;= 40]" sap:VirtualizedContainerService.HintSize="521.6,3452.8" sap2010:WorkflowViewState.IdRef="If_1">
+                      <If Condition="[isValidRecord AndAlso Not isDuplicate AndAlso studentMarks &gt;= 40]" sap:VirtualizedContainerService.HintSize="521.6,3452.8" sap2010:WorkflowViewState.IdRef="If_1">
                         <If.Then>
                           <Sequence DisplayName="Then" sap:VirtualizedContainerService.HintSize="520,3065.6" sap2010:WorkflowViewState.IdRef="Sequence_6">
                             <sap:WorkflowViewStateService.ViewState>
@@ -343,7 +388,7 @@
                                 <x:Boolean x:Key="IsExpanded">True</x:Boolean>
                               </scg:Dictionary>
                             </sap:WorkflowViewStateService.ViewState>
-                            <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="486.4,165.6" sap2010:WorkflowViewState.IdRef="LogMessage_3" Level="Warn" Message="[studentName + &quot; - FAIL&quot;]" />
+                            <ui:LogMessage DisplayName="Log Message" sap:VirtualizedContainerService.HintSize="486.4,165.6" sap2010:WorkflowViewState.IdRef="LogMessage_3" Level="Warn" Message="[If(Not isValidRecord, studentName + &quot; - INVALID DATA: &quot; + validationMessage, If(isDuplicate, studentName + &quot; - DUPLICATE STUDENT ID: skipped&quot;, studentName + &quot; - NOT ELIGIBLE (marks below 40)&quot;))]" />
                           </Sequence>
                         </If.Else>
                       </If>
@@ -355,7 +400,7 @@
           </ActivityAction>
         </ueab:ExcelApplicationCard.Body>
       </ueab:ExcelApplicationCard>
-      <uix:NShowStatusMessage DisplayName="Show Status Message" sap:VirtualizedContainerService.HintSize="616,217.6" sap2010:WorkflowViewState.IdRef="NShowStatusMessage_1" Level="Info" Message="Automation completed successfully by Hemank Kumar" Title="Congratulations" Version="V5" />
+      <uix:NShowStatusMessage DisplayName="Show Status Message" sap:VirtualizedContainerService.HintSize="616,217.6" sap2010:WorkflowViewState.IdRef="NShowStatusMessage_1" Level="Info" Message="Student processing completed. Review execution logs for invalid, duplicate, not-eligible, or failed records." Title="Automation Completed" Version="V5" />
     </Sequence>
   </Sequence>
 </Activity>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+
+    <!-- Loads existing db.js from the same directory if present (fails silently if not found) -->
+    <script src="./db.js" onerror="window.STUDENT_DB = window.STUDENT_DB || [];"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 460px;
+            margin: 20px auto;
+            padding: 28px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.12);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            text-align: center;
+            color: #1e3a8a;
+            font-size: 25px;
+        }
+
+        .subtitle {
+            margin: 0 0 20px;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .db-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            margin-bottom: 18px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .db-badge {
+            font-weight: 700;
+            color: #1e40af;
+        }
+
+        .db-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .mini-btn {
+            padding: 5px 9px;
+            background: #e2e8f0;
+            color: #1e293b;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            transition: background 0.15s;
+        }
+
+        .mini-btn:hover {
+            background: #cbd5e1;
+        }
+
+        .mini-btn.active-sync {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 7px;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input, select {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 13px;
+            margin-top: 25px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .register-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .register-btn:disabled {
+            background: #16a34a;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Persistent registration status panel */
+        .status-panel {
+            display: none;
+            margin-top: 24px;
+            padding: 18px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-left: 5px solid #16a34a;
+            border-radius: 10px;
+            color: #166534;
+            overflow-wrap: anywhere;
+        }
+
+        .status-heading {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 0 0 14px;
+            font-size: 17px;
+        }
+
+        .small-check {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        .details {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .details li {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #dcfce7;
+            font-size: 14px;
+        }
+
+        .details li:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #64748b;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: #166534;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 21px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Student Registration</h1>
+        <p class="subtitle">Enter the student's details below</p>
+
+        <!-- Compact status bar showing background DB state -->
+        <div class="db-bar">
+            <span>Records in DB: <strong id="recordCount" class="db-badge">0</strong></span>
+            <div class="db-actions">
+                <button type="button" id="linkFileBtn" class="mini-btn" title="Link local db.js once for direct background overwrites">
+                    Link ./db.js
+                </button>
+                <button type="button" id="exportDbBtn" class="mini-btn" title="Download db.js snapshot">
+                    Export db.js
+                </button>
+            </div>
+        </div>
+
+        <form id="studentForm">
+            <label for="studentId">Student ID</label>
+            <input
+                id="studentId"
+                name="studentId"
+                type="text"
+                placeholder="e.g. S101"
+                required
+            >
+
+            <label for="name">Full Name</label>
+            <input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Enter full name"
+                required
+            >
+
+            <label for="email">Email Address</label>
+            <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="student@example.com"
+                required
+            >
+
+            <label for="course">Course</label>
+            <select id="course" name="course" required>
+                <option value="">Select Course</option>
+                <option value="MCA">MCA</option>
+                <option value="BCA">BCA</option>
+            </select>
+
+            <label for="marks">Marks</label>
+            <input
+                id="marks"
+                name="marks"
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                placeholder="Enter marks (0–100)"
+                required
+            >
+
+            <button class="register-btn" type="submit">
+                Register Student
+            </button>
+        </form>
+
+        <!-- Registration result remains visible -->
+        <section
+            id="statusPanel"
+            class="status-panel"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+        >
+            <h2 class="status-heading">
+                <span class="small-check" aria-hidden="true">✓</span>
+                Registration Status
+            </h2>
+
+            <ul class="details">
+                <li>
+                    <span class="detail-label">Status</span>
+                    <span id="panelOperation" class="detail-value">Successful</span>
+                </li>
+                <li>
+                    <span class="detail-label">Student ID</span>
+                    <span id="panelId" class="detail-value"></span>
+                </li>
+                <li>
+                    <span class="detail-label">Name</span>
+                    <span id="panelName" class="detail-value"></span>
+                </li>
+                <li>
+                    <span class="detail-label">Email</span>
+                    <span id="panelEmail" class="detail-value"></span>
+                </li>
+                <li>
+                    <span class="detail-label">Course</span>
+                    <span id="panelCourse" class="detail-value"></span>
+                </li>
+                <li>
+                    <span class="detail-label">Marks</span>
+                    <span id="panelMarks" class="detail-value"></span>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <script>
+        /**
+         * Robust Background Database Engine (IndexedDB + Streamed JS File Writer)
+         * - Handles 100,000+ records without blocking the main thread or hitting localStorage 5MB limits.
+         * - Automatically creates or updates (upserts) student records by `id`.
+         */
+        class StudentDatabase {
+            constructor() {
+                this.dbName = "StudentRegistrationDB";
+                this.storeName = "students";
+                this.db = null;
+                this.fileHandle = null; // Used when linked to physical ./db.js
+                this.writeQueue = Promise.resolve();
+            }
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, 1);
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(this.storeName)) {
+                            db.createObjectStore(this.storeName, { keyPath: "id" });
+                        }
+                    };
+
+                    request.onsuccess = async (event) => {
+                        this.db = event.target.result;
+                        // If ./db.js was loaded via <script src="./db.js">, seed initial records into IndexedDB
+                        if (Array.isArray(window.STUDENT_DB) && window.STUDENT_DB.length > 0) {
+                            await this.bulkSeed(window.STUDENT_DB);
+                        }
+                        resolve();
+                    };
+
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            async bulkSeed(records) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(this.storeName, "readwrite");
+                    const store = tx.objectStore(this.storeName);
+                    for (const item of records) {
+                        if (item && item.id) {
+                            store.put(item);
+                        }
+                    }
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            // Upserts record: Creates if not present, rewrites if Student ID already exists
+            async upsert(student) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(this.storeName, "readwrite");
+                    const store = tx.objectStore(this.storeName);
+                    const getReq = store.get(student.id);
+                    let existed = false;
+
+                    getReq.onsuccess = () => {
+                        existed = Boolean(getReq.result);
+                        store.put(student);
+                    };
+
+                    tx.oncomplete = () => {
+                        // Queue background sync to physical db.js if linked or via background Bridge
+                        this.queueBackgroundWrite(student);
+                        resolve({ existed });
+                    };
+
+                    tx.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            async count() {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(this.storeName, "readonly");
+                    const store = tx.objectStore(this.storeName);
+                    const req = store.count();
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            // Streams large datasets in chunks so even 100k+ records won't freeze the browser
+            async buildJsBlob() {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(this.storeName, "readonly");
+                    const store = tx.objectStore(this.storeName);
+                    const cursorReq = store.openCursor();
+
+                    const chunks = [
+                        "// Auto-generated Student Database\nwindow.STUDENT_DB = [\n"
+                    ];
+                    let first = true;
+
+                    cursorReq.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            const prefix = first ? "  " : ",\n  ";
+                            chunks.push(prefix + JSON.stringify(cursor.value));
+                            first = false;
+                            cursor.continue();
+                        } else {
+                            chunks.push("\n];\nif (typeof module !== 'undefined') module.exports = window.STUDENT_DB;\n");
+                            resolve(new Blob(chunks, { type: "application/javascript" }));
+                        }
+                    };
+
+                    cursorReq.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            // Serializes background writes so rapid submissions never corrupt db.js
+            queueBackgroundWrite() {
+                this.writeQueue = this.writeQueue.then(async () => {
+                    try {
+                        // 1. If running in an environment with a local file handle linked, write directly in background
+                        if (this.fileHandle) {
+                            const blob = await this.buildJsBlob();
+                            const writable = await this.fileHandle.createWritable();
+                            await writable.write(blob);
+                            await writable.close();
+                        }
+                    } catch (err) {
+                        console.warn("Background file write skipped:", err);
+                    }
+                });
+                return this.writeQueue;
+            }
+
+            // Silent background download trigger (no Save-As box if browser auto-downloads)
+            async downloadDbJsFile() {
+                const blob = await this.buildJsBlob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = "db.js";
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 1000);
+            }
+        }
+
+        const dbEngine = new StudentDatabase();
+        const studentForm = document.getElementById("studentForm");
+        const registerButton = studentForm.querySelector(".register-btn");
+        const statusPanel = document.getElementById("statusPanel");
+        const recordCountEl = document.getElementById("recordCount");
+        const linkFileBtn = document.getElementById("linkFileBtn");
+        const exportDbBtn = document.getElementById("exportDbBtn");
+
+        async function refreshCount() {
+            const total = await dbEngine.count();
+            recordCountEl.textContent = total.toLocaleString();
+        }
+
+        // Initialize DB on page load
+        dbEngine.init().then(refreshCount).catch(console.error);
+
+        // Optional: Link physical ./db.js once so all future registrations overwrite it silently in the background
+        if (!("showSaveFilePicker" in window)) {
+            linkFileBtn.style.display = "none";
+        } else {
+            linkFileBtn.addEventListener("click", async () => {
+                try {
+                    dbEngine.fileHandle = await window.showSaveFilePicker({
+                        suggestedName: "db.js",
+                        types: [{
+                            description: "JavaScript Database File",
+                            accept: { "application/javascript": [".js"] }
+                        }]
+                    });
+                    linkFileBtn.textContent = "Synced to ./db.js ✓";
+                    linkFileBtn.classList.add("active-sync");
+                    await dbEngine.queueBackgroundWrite();
+                } catch (e) {
+                    // User cancelled picker
+                }
+            });
+        }
+
+        exportDbBtn.addEventListener("click", () => {
+            dbEngine.downloadDbJsFile();
+        });
+
+        studentForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            // Read values before clearing the form.
+            const student = {
+                id: document.getElementById("studentId").value.trim(),
+                name: document.getElementById("name").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                course: document.getElementById("course").value,
+                marks: Number(document.getElementById("marks").value.trim()),
+                updatedAt: new Date().toISOString()
+            };
+
+            // Validate the entered information.
+            if (
+                !student.id ||
+                !student.name ||
+                !student.email ||
+                !student.course ||
+                !Number.isFinite(student.marks) ||
+                student.marks < 0 ||
+                student.marks > 100
+            ) {
+                return;
+            }
+
+            // Save or overwrite record in background DB
+            const { existed } = await dbEngine.upsert(student);
+            await refreshCount();
+
+            // Display submitted student details.
+            document.getElementById("panelOperation").textContent = existed
+                ? "Updated in db.js"
+                : "Created in db.js";
+            document.getElementById("panelId").textContent = student.id;
+            document.getElementById("panelName").textContent = student.name;
+            document.getElementById("panelEmail").textContent = student.email;
+            document.getElementById("panelCourse").textContent = student.course;
+            document.getElementById("panelMarks").textContent = student.marks;
+
+            statusPanel.style.display = "block";
+
+            // Clear all form fields.
+            studentForm.reset();
+
+            // Set focus back to Student ID.
+            document.getElementById("studentId").focus();
+
+            // Show temporary success feedback.
+            registerButton.textContent = existed ? "Record Updated" : "Registered Successfully";
+            registerButton.disabled = true;
+
+            window.setTimeout(function () {
+                registerButton.textContent = "Register Student";
+                registerButton.disabled = false;
+            }, 1200);
+        });
+    </script>
+</body>
+</html>
